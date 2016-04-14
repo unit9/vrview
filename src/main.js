@@ -51,11 +51,14 @@ loader.on('load', onSceneLoad);
 var renderer = new PhotosphereRenderer();
 renderer.on('error', onRenderError);
 
+var VIDEO_SYNC = {NONE: 0, TIME: 1, AUDIO: 2}
 var video = {
   element: null,
-  forceTimeUpdate: false,
+  sync: VIDEO_SYNC.NONE,
   startTime: null,
+  audio: null,
 }
+
 
 // TODO: Make this not global.
 // Currently global in order to allow callbacks.
@@ -113,14 +116,24 @@ function onSceneLoad(scene) {
         showError('Video is not supported on IE11.');
       }
     } else {
+      var muted = !!Util.getQueryParameter('muted');
+
       // Load the video element.
       video.element = document.createElement('video');
       video.element.src = scene.video;
       video.element.loop = true;
+      video.element.muted = muted;
       video.element.setAttribute('crossorigin', 'anonymous');
       video.element.addEventListener('canplaythrough', onVideoLoad);
       video.element.addEventListener('error', onVideoError);
       video.element.load();
+
+      if (!muted && Util.isIPhoneIPod()) {
+        video.audio = new Audio();
+        video.audio.src = scene.video;
+        video.audio.loop = true;
+        video.audio.load();
+      }
     }
   } else if (scene.image) {
     // Otherwise, just render the photosphere.
@@ -136,17 +149,16 @@ function onVideoLoad() {
   }
   renderer.set360Video(video.element, params);
 
-  // On iPhone, activate a workaround to play background video
-  if (Util.isIPhoneIPod()) {
-    loadIndicator.hide();
-    video.forceTimeUpdate = true;
-  }
   // On mobile, tell the user they need to tap to start. Otherwise, autoplay.
-  else if (!Util.isMobile()) {
+  if (!Util.isMobile()) {
     // Hide loading indicator.
     loadIndicator.hide();
     // Autoplay the video on desktop.
     video.element.play();
+  } else if (!video.audio && Util.isIPhoneIPod()){
+    loadIndicator.hide();
+    // for iPhone without audio, activate a workaround to play background video
+    video.sync = VIDEO_SYNC.TIME;
   } else {
     // Tell user to tap to start.
     showError('Tap to start video', 'Play');
@@ -159,7 +171,15 @@ function onVideoLoad() {
 
 function onVideoTap() {
   hideError();
-  video.element.play();
+  
+  if (video.audio) {
+    // for iPhone with audio, activate a workaround to play background video
+    video.audio.play();
+    video.sync = VIDEO_SYNC.AUDIO;
+  } else {
+    // play video on other devices
+    video.element.play();
+  }
 
   // Prevent multiple play() calls on the video element.
   document.body.removeEventListener('touchend', onVideoTap);
@@ -215,7 +235,9 @@ function loop(time) {
   if (stats) stats.begin();
 
   // hack for iPhone
-  if (video.forceTimeUpdate) {
+  if (video.sync == VIDEO_SYNC.AUDIO) {
+    video.element.currentTime = video.audio.currentTime;
+  } else if (video.sync == VIDEO_SYNC.TIME) {
     if (!video.startTime) video.startTime = time;
     else video.element.currentTime =
       ((time - video.startTime) / 1000) % video.element.duration;

@@ -25,6 +25,7 @@ html, body {
   user-select: none;
 }
 .dialog.visible {
+  display: -webkit-flex;
   display: flex;
 }
 .dialog .wrap {

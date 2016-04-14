@@ -5,9 +5,15 @@
   "main": "index.js",
   "//": "TODO: Re-add dependencies once vanilla versions can be used again.",
   "dependencies": {
-    "es6-promise": "^3.0.2"
+    "es6-promise": "^3.0.2",
+    "stats-js": "^1.0.0-alpha1"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "browserify": "^13.0.0",
+    "derequire": "^2.0.3",
+    "uglifyjs": "^2.4.10",
+    "watchify": "^3.7.0"
+  },
   "scripts": {
     "copy": "cp ../webvr-boilerplate/build/webvr-manager.js node_modules/webvr-boilerplate/build/",
     "build": "browserify src/main.js | derequire > build/vrview.js",

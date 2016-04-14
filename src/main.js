@@ -24,7 +24,7 @@ var LoadingIndicator = require('./loading-indicator');
 var loadIndicator = new LoadingIndicator();
 
 // Include relevant polyfills.
-require('../node_modules/webvr-polyfill/build/webvr-polyfill');
+require('./vendor/webvr-polyfill/build/webvr-polyfill');
 var ES6Promise = require('../node_modules/es6-promise/dist/es6-promise.min');
 // Polyfill ES6 promises for IE.
 ES6Promise.polyfill();

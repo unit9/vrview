@@ -15,12 +15,12 @@
 
 var Emitter = require('./emitter');
 var Eyes = require('./eyes');
-var THREE = require('../node_modules/three/three');
-THREE.VRControls = require('../node_modules/three/examples/js/controls/VRControls');
-THREE.VREffect = require('../node_modules/three/examples/js/effects/VREffect');
+var THREE = require('./vendor/three/three');
+THREE.VRControls = require('./vendor/three/examples/js/controls/VRControls');
+THREE.VREffect = require('./vendor/three/examples/js/effects/VREffect');
 var Util = require('./util');
 var VertexDistorter = require('./vertex-distorter');
-require('../node_modules/webvr-boilerplate/build/webvr-manager');
+require('./vendor/webvr-boilerplate/build/webvr-manager');
 
 function PhotosphereRenderer() {
   this.init();

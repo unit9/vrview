@@ -43,6 +43,8 @@ var dmr = new DeviceMotionReceiver();
 window.addEventListener('load', init);
 
 var stats = new Stats();
+// Flag to avoid extra actions in RAF loop, if stats module is not used
+var statsActive = false;
 
 var loader = new SceneLoader();
 loader.on('error', onSceneError);
@@ -51,7 +53,12 @@ loader.on('load', onSceneLoad);
 var renderer = new PhotosphereRenderer();
 renderer.on('error', onRenderError);
 
-var videoElement = null;
+var video = {
+  element: null,
+  forceTimeUpdate: false,
+  startTime: null,
+}
+
 // TODO: Make this not global.
 // Currently global in order to allow callbacks.
 var loadedScene = null;
@@ -97,30 +104,30 @@ function onSceneLoad(scene) {
     renderer.on('load', onPreviewLoad);
     renderer.setPhotosphere(scene.preview, params);
   } else if (scene.video) {
-    if (Util.isIOS() || Util.isIE11()) {
-      // On iOS and IE 11, if an 'image' param is provided, load it instead of
+    if (Util.isIE11()) {
+      // On IE 11, if an 'image' param is provided, load it instead of
       // showing an error.
       //
       // TODO(smus): Once video textures are supported, remove this fallback.
       if (scene.image) {
         loadImage(scene.image, params);
       } else {
-        showError('Video is not supported on this platform (iOS or IE11).');
+        showError('Video is not supported on IE11.');
       }
     } else {
       // Load the video element.
-      videoElement = document.createElement('video');
-      videoElement.src = scene.video;
-      videoElement.loop = true;
-      videoElement.setAttribute('crossorigin', 'anonymous');
-      videoElement.addEventListener('canplaythrough', onVideoLoad);
-      videoElement.addEventListener('error', onVideoError);
+      video.element = document.createElement('video');
+      video.element.src = scene.video;
+      video.element.loop = true;
+      video.element.setAttribute('crossorigin', 'anonymous');
+      video.element.addEventListener('canplaythrough', onVideoLoad);
+      video.element.addEventListener('error', onVideoError);
+      video.element.load();
     }
   } else if (scene.image) {
     // Otherwise, just render the photosphere.
     loadImage(scene.image, params);
   }
-
   console.log('Loaded scene', scene);
 }
 
@@ -129,14 +136,19 @@ function onVideoLoad() {
   var params = {
     isStereo: loadedScene.isStereo,
   }
-  renderer.set360Video(videoElement, params);
+  renderer.set360Video(video.element, params);
 
+  // On iPhone, activate a workaround to play background video
+  if (Util.isIPhone()) {
+    loadIndicator.hide();
+    video.forceTimeUpdate = true;
+  }
   // On mobile, tell the user they need to tap to start. Otherwise, autoplay.
-  if (!Util.isMobile()) {
+  else if (!Util.isMobile()) {
     // Hide loading indicator.
     loadIndicator.hide();
     // Autoplay the video on desktop.
-    videoElement.play();
+    video.element.play();
   } else {
     // Tell user to tap to start.
     showError('Tap to start video', 'Play');
@@ -144,12 +156,12 @@ function onVideoLoad() {
   }
 
   // Prevent onVideoLoad from firing multiple times.
-  videoElement.removeEventListener('canplaythrough', onVideoLoad);
+  video.element.removeEventListener('canplaythrough', onVideoLoad);
 }
 
 function onVideoTap() {
   hideError();
-  videoElement.play();
+  video.element.play();
 
   // Prevent multiple play() calls on the video element.
   document.body.removeEventListener('touchend', onVideoTap);
@@ -198,12 +210,21 @@ function showStats() {
   stats.domElement.style.left = '0px';
   stats.domElement.style.bottom = '0px';
   document.body.appendChild(stats.domElement);
+  statsActive = true;
 }
 
 function loop(time) {
-  stats.begin();
+  if (statsActive) stats.begin();
+
+  // hack for iPhone
+  if (video.forceTimeUpdate) {
+    if (!video.startTime) video.startTime = time;
+    else video.element.currentTime =
+      ((time - video.startTime) / 1000) % video.element.duration;
+  }
+
   renderer.render(time);
-  stats.end();
+  if (statsActive) stats.end();
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);

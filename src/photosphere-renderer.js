@@ -74,6 +74,7 @@ PhotosphereRenderer.prototype.init = function() {
 };
 
 PhotosphereRenderer.prototype.render = function(timestamp) {
+  if (this.isIPhone && this.videoTexture) this.videoTexture.needsUpdate = true;
   this.controls.update();
   this.manager.render(this.scenes, this.camera, timestamp);
 };
@@ -106,16 +107,20 @@ PhotosphereRenderer.prototype.set360Video = function(videoElement, opt_params) {
   var params = opt_params || {};
 
   this.isStereo = !!params.isStereo;
+  this.isIPhone = Util.isIPhone();
 
-  // Load the video texture.
-  var videoTexture = new THREE.VideoTexture(videoElement);
-  videoTexture.minFilter = THREE.LinearFilter;
-  videoTexture.magFilter = THREE.LinearFilter;
-  videoTexture.format = THREE.RGBFormat;
-  videoTexture.generateMipmaps = false;
-  videoTexture.needsUpdate = true;
+  // iPhone has a limitation on the video playback,
+  // using THREE.Texture and updating it manually.
+  // Other devices support video playback and THREE.VideoTexture.
+  if (this.isIPhone) this.videoTexture = new THREE.Texture(videoElement);
+  else this.videoTexture = new THREE.VideoTexture(videoElement);
+  this.videoTexture.minFilter = THREE.LinearFilter;
+  this.videoTexture.magFilter = THREE.LinearFilter;
+  this.videoTexture.format = THREE.RGBFormat;
+  this.videoTexture.generateMipmaps = false;
+  this.videoTexture.needsUpdate = true;
 
-  this.onTextureLoaded_(videoTexture);
+  this.onTextureLoaded_(this.videoTexture);
 };
 
 PhotosphereRenderer.prototype.initScenes_ = function() {

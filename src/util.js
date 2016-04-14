@@ -36,11 +36,11 @@ Util.isMobile = function() {
 };
 
 Util.isIOS = function() {
-  return /(iPad|iPhone|iPod)/g.test(navigator.userAgent);
+  return /(iPad|iPhone|iPod)/ig.test(navigator.userAgent);
 };
 
-Util.isIPhone = function() {
-  return /iPhone/g.test(navigator.userAgent);
+Util.isIPhoneIPod = function() {
+  return /iPhone|iPod/ig.test(navigator.userAgent);
 };
 
 Util.cloneObject = function(obj) {

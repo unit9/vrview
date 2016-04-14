@@ -107,7 +107,7 @@ PhotosphereRenderer.prototype.set360Video = function(videoElement, opt_params) {
   var params = opt_params || {};
 
   this.isStereo = !!params.isStereo;
-  this.isIPhone = Util.isIPhone();
+  this.isIPhone = Util.isIPhoneIPod();
 
   // iPhone has a limitation on the video playback,
   // using THREE.Texture and updating it manually.

@@ -137,7 +137,7 @@ function onVideoLoad() {
   renderer.set360Video(video.element, params);
 
   // On iPhone, activate a workaround to play background video
-  if (Util.isIPhone()) {
+  if (Util.isIPhoneIPod()) {
     loadIndicator.hide();
     video.forceTimeUpdate = true;
   }

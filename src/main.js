@@ -42,9 +42,7 @@ var dmr = new DeviceMotionReceiver();
 
 window.addEventListener('load', init);
 
-var stats = new Stats();
-// Flag to avoid extra actions in RAF loop, if stats module is not used
-var statsActive = false;
+var stats = null;
 
 var loader = new SceneLoader();
 loader.on('error', onSceneError);
@@ -203,6 +201,7 @@ function hideError() {
 }
 
 function showStats() {
+  stats = new Stats();
   stats.setMode(0); // 0: fps, 1: ms
 
   // Align bottom-left.
@@ -210,11 +209,10 @@ function showStats() {
   stats.domElement.style.left = '0px';
   stats.domElement.style.bottom = '0px';
   document.body.appendChild(stats.domElement);
-  statsActive = true;
 }
 
 function loop(time) {
-  if (statsActive) stats.begin();
+  if (stats) stats.begin();
 
   // hack for iPhone
   if (video.forceTimeUpdate) {
@@ -224,7 +222,7 @@ function loop(time) {
   }
 
   renderer.render(time);
-  if (statsActive) stats.end();
+  if (stats) stats.end();
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);

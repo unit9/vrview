@@ -17,6 +17,7 @@
 // vertex-based distortion.
 WebVRConfig = window.WebVRConfig || {}
 WebVRConfig.PREVENT_DISTORTION = true;
+WebVRConfig.ENABLE_DEPRECATED_API = true;
 
 // Initialize the loading indicator as quickly as possible to give the user
 // immediate feedback.
@@ -24,7 +25,7 @@ var LoadingIndicator = require('./loading-indicator');
 var loadIndicator = new LoadingIndicator();
 
 // Include relevant polyfills.
-require('./vendor/webvr-polyfill/build/webvr-polyfill');
+require('./vendor/webvr-polyfill/src/main');
 var ES6Promise = require('../node_modules/es6-promise/dist/es6-promise.min');
 // Polyfill ES6 promises for IE.
 ES6Promise.polyfill();

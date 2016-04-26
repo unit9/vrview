@@ -26,8 +26,9 @@ window.WebVRConfig = Util.extend({
   // How far into the future to predict during fast motion (in seconds).
   PREDICTION_TIME_S: 0.040,
 
-  // Flag to disable touch panner. In case you have your own touch controls.
-  TOUCH_PANNER_DISABLED: false,
+  // Flags to disable touch panner. In case you have your own touch controls.
+  TOUCH_PANNER_HORIZONTAL_DISABLED: false,
+  TOUCH_PANNER_VERTICAL_DISABLED: false,
 
   // Enable yaw panning only, disabling roll and pitch. This can be useful
   // for panoramas with nothing interesting above or below.

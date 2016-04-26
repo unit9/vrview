@@ -17,8 +17,7 @@ var Util = require('./util.js');
 
 var ROTATE_SPEED = 0.5;
 /**
- * Provides a quaternion responsible for pre-panning the scene before further
- * transformations due to device sensors.
+ * Provides a quaternions responsible for panning the scene
  */
 function TouchPanner() {
   window.addEventListener('touchstart', this.onTouchStart_.bind(this));
@@ -30,16 +29,25 @@ function TouchPanner() {
   this.rotateEnd = new THREE.Vector2();
   this.rotateDelta = new THREE.Vector2();
 
-  this.theta = 0;
+  this.phi = 0; // corresponds to vertical touch movement
+  this.theta = 0; // corresponds to horizontal touch movement
   this.orientation = new THREE.Quaternion();
 }
 
-TouchPanner.prototype.getOrientation = function() {
+// Applies after transformations due to device sensors
+TouchPanner.prototype.getOrientationVertical = function() {
+  this.orientation.setFromEuler(new THREE.Euler(this.phi, 0, 0));
+  return this.orientation;
+};
+
+// Applies before transformations due to device sensors 
+TouchPanner.prototype.getOrientationHorizontal = function() {
   this.orientation.setFromEuler(new THREE.Euler(0, 0, this.theta));
   return this.orientation;
 };
 
 TouchPanner.prototype.resetSensor = function() {
+  this.phi = 0;
   this.theta = 0;
 };
 
@@ -66,6 +74,7 @@ TouchPanner.prototype.onTouchMove_ = function(e) {
   }
 
   var element = document.body;
+  this.phi += 2 * Math.PI * this.rotateDelta.y / element.clientHeight * ROTATE_SPEED;
   this.theta += 2 * Math.PI * this.rotateDelta.x / element.clientWidth * ROTATE_SPEED;
 };
 

@@ -20,7 +20,7 @@ THREE.VRControls = require('./vendor/three/examples/js/controls/VRControls');
 THREE.VREffect = require('./vendor/three/examples/js/effects/VREffect');
 var Util = require('./util');
 var VertexDistorter = require('./vertex-distorter');
-require('./vendor/webvr-boilerplate/build/webvr-manager');
+require('./vendor/webvr-boilerplate/src/main');
 
 function PhotosphereRenderer() {
   this.init();

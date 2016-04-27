@@ -2028,7 +2028,6 @@ function RotateInstructions() {
   var snackbarButton = document.createElement('a');
   snackbarButton.href = 'https://www.google.com/get/cardboard/get-cardboard/';
   snackbarButton.innerHTML = 'get one';
-  snackbarButton.target = '_blank';
   var s = snackbarButton.style;
   s.float = 'right';
   s.fontWeight = 600;
@@ -2223,8 +2222,7 @@ function ViewerSelector(options) {
   // Try to load the selected key from local storage. If none exists, use the
   // default key.
   try {
-    this.selectedKey = window.localStorage && localStorage.getItem(VIEWER_KEY)
-        || DEFAULT_VIEWER;
+    this.selectedKey = localStorage.getItem(VIEWER_KEY) || DEFAULT_VIEWER;
   } catch(error) {
     console.error('Failed to load viewer profile: %s', error);
   }
@@ -2899,7 +2897,7 @@ WebVRManager.prototype.requestFullscreen_ = function() {
   var canvas = document.body;
   //var canvas = this.renderer.domElement;
   if (canvas.requestFullscreen) {
-    canvas.requestFullscreen();
+    canvas.requestFullscreen({vrDisplay: this.hmd});
   } else if (canvas.mozRequestFullScreen) {
     canvas.mozRequestFullScreen({vrDisplay: this.hmd});
   } else if (canvas.webkitRequestFullscreen) {

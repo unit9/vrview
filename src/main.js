@@ -17,7 +17,6 @@
 // vertex-based distortion.
 WebVRConfig = window.WebVRConfig || {}
 WebVRConfig.PREVENT_DISTORTION = true;
-WebVRConfig.ENABLE_DEPRECATED_API = true;
 
 // Initialize the loading indicator as quickly as possible to give the user
 // immediate feedback.
